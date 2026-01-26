@@ -1,0 +1,328 @@
+# AutoBid Manager API - Testing File
+# Use with REST Client VS Code Extension
+
+@baseUrl = http://localhost:3000/api
+@token = YOUR_JWT_TOKEN_HERE
+@companyId = YOUR_COMPANY_ID_HERE
+@userId = YOUR_USER_ID_HERE
+
+###############################################################################
+# STEP 1: COMPANY REGISTRATION
+###############################################################################
+
+### 1.1 Register a new company (Public endpoint - no auth required)
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "Test Auto Import LLC1",
+  "copartUsername": "testcopart12",
+  "copartPassword": "copartpass1234"
+}
+
+###############################################################################
+# STEP 2: CREATE SUB-USERS
+###############################################################################
+
+### 2.1 Create first sub-user (IMPORTANT: Copy the companyId from Step 1 response)
+# Replace @companyId with actual ID from previous response
+# NOTE: No auth required for creating users (public endpoint for MVP)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "companyId": "69761e7c9fb1368098d4fc75",
+  "username": "giorgi",
+  "password": "password123",
+  "displayName": "Giorgi Beridze",
+  "buyerNumber": "GB001"
+}
+
+### 2.2 Create second sub-user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "companyId": "69761e7c9fb1368098d4fc75",
+  "username": "lasha",
+  "password": "password123",
+  "displayName": "Lasha Nikoladze",
+  "buyerNumber": "LN002"
+}
+
+### 2.3 Create third sub-user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "companyId": "69761e7c9fb1368098d4fc75",
+  "username": "nino",
+  "password": "password123",
+  "displayName": "Nino Jokhadze"
+}
+
+###############################################################################
+# STEP 3: SUB-USER LOGIN
+###############################################################################
+
+### 3.1 Login as Giorgi (IMPORTANT: Copy the accessToken from response)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "giorgi",
+  "password": "password123"
+}
+
+### 3.2 Login as Lasha
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "lasha",
+  "password": "password123"
+}
+
+### 3.3 Login with invalid credentials (should return 401)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "giorgi",
+  "password": "wrongpassword"
+}
+
+###############################################################################
+# STEP 4: COMPANY MANAGEMENT
+###############################################################################
+
+### 4.1 Get company details (Requires auth)
+GET {{baseUrl}}/companies/69761e7c9fb1368098d4fc75
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTc2M2ZhZjliNGZjMTFlNTg4MWVkNzMiLCJ1c2VybmFtZSI6Imdpb3JnaSIsImNvbXBhbnlJZCI6IjY5NzYxZTdjOWZiMTM2ODA5OGQ0ZmM3NSIsImlhdCI6MTc2OTM1NzI4NywiZXhwIjoxNzY5OTYyMDg3fQ.7RIz48h1LOz2ultwNvpxV7fFD6PNTIxs6JHaGUcfvMc
+
+### 4.2 Get Copart credentials (Requires auth)
+GET {{baseUrl}}/companies/{{companyId}}/copart-credentials
+Authorization: Bearer {{token}}
+
+###############################################################################
+# STEP 5: USER MANAGEMENT
+###############################################################################
+
+### 5.1 List all company users
+GET {{baseUrl}}/users/company/69761e7c9fb1368098d4fc75
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTc2M2ZhZjliNGZjMTFlNTg4MWVkNzMiLCJ1c2VybmFtZSI6Imdpb3JnaSIsImNvbXBhbnlJZCI6IjY5NzYxZTdjOWZiMTM2ODA5OGQ0ZmM3NSIsImlhdCI6MTc2OTM1NzI4NywiZXhwIjoxNzY5OTYyMDg3fQ.7RIz48h1LOz2ultwNvpxV7fFD6PNTIxs6JHaGUcfvMc
+
+### 5.2 Get specific user details
+GET {{baseUrl}}/users/69763faf9b4fc11e5881ed73
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTc2M2ZhZjliNGZjMTFlNTg4MWVkNzMiLCJ1c2VybmFtZSI6Imdpb3JnaSIsImNvbXBhbnlJZCI6IjY5NzYxZTdjOWZiMTM2ODA5OGQ0ZmM3NSIsImlhdCI6MTc2OTM1NzI4NywiZXhwIjoxNzY5OTYyMDg3fQ.7RIz48h1LOz2ultwNvpxV7fFD6PNTIxs6JHaGUcfvMc
+
+### 5.3 Deactivate user (soft delete)
+DELETE {{baseUrl}}/users/{{userId}}
+Authorization: Bearer {{token}}
+
+###############################################################################
+# STEP 6: BID LOGGING (Called by extension)
+###############################################################################
+
+### 6.1 Log a Copart bid
+POST {{baseUrl}}/bids/log
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTc2M2ZhZjliNGZjMTFlNTg4MWVkNzMiLCJ1c2VybmFtZSI6Imdpb3JnaSIsImNvbXBhbnlJZCI6IjY5NzYxZTdjOWZiMTM2ODA5OGQ0ZmM3NSIsImlhdCI6MTc2OTM1NzI4NywiZXhwIjoxNzY5OTYyMDg3fQ.7RIz48h1LOz2ultwNvpxV7fFD6PNTIxs6JHaGUcfvMc
+
+{
+  "auction": "copart",
+  "lotNumber": "67890123",
+  "vin": "1HGBH41JXMN109186",
+  "bidAmount": 5000,
+  "bidType": "PreBid",
+  "auctionDate": "2026-02-15T14:00:00Z"
+}
+
+### 6.2 Log another bid
+POST {{baseUrl}}/bids/log
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTc2M2ZhZjliNGZjMTFlNTg4MWVkNzMiLCJ1c2VybmFtZSI6Imdpb3JnaSIsImNvbXBhbnlJZCI6IjY5NzYxZTdjOWZiMTM2ODA5OGQ0ZmM3NSIsImlhdCI6MTc2OTM1NzI4NywiZXhwIjoxNzY5OTYyMDg3fQ.7RIz48h1LOz2ultwNvpxV7fFD6PNTIxs6JHaGUcfvMc
+
+{
+  "auction": "copart",
+  "lotNumber": "67890124",
+  "bidAmount": 7500,
+  "bidType": "Live Bid"
+}
+
+### 6.3 Log third bid
+POST {{baseUrl}}/bids/log
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OTc2M2ZhZjliNGZjMTFlNTg4MWVkNzMiLCJ1c2VybmFtZSI6Imdpb3JnaSIsImNvbXBhbnlJZCI6IjY5NzYxZTdjOWZiMTM2ODA5OGQ0ZmM3NSIsImlhdCI6MTc2OTM1NzI4NywiZXhwIjoxNzY5OTYyMDg3fQ.7RIz48h1LOz2ultwNvpxV7fFD6PNTIxs6JHaGUcfvMc
+
+{
+  "auction": "copart",
+  "lotNumber": "67890125",
+  "vin": "5NPD84LF4KH654321",
+  "bidAmount": 3200,
+  "bidType": "Proxy Bid",
+  "auctionDate": "2026-02-16T15:30:00Z"
+}
+
+###############################################################################
+# STEP 7: VIEW BIDS
+###############################################################################
+
+### 7.1 Get user's bid history (paginated)
+GET {{baseUrl}}/bids/user/{{userId}}?page=1&limit=50
+Authorization: Bearer {{token}}
+
+### 7.2 Get company's all bids (paginated)
+GET {{baseUrl}}/bids/company/{{companyId}}?page=1&limit=50
+Authorization: Bearer {{token}}
+
+### 7.3 Get second page of bids
+GET {{baseUrl}}/bids/company/{{companyId}}?page=2&limit=10
+Authorization: Bearer {{token}}
+
+###############################################################################
+# STEP 8: WIN RECORDING (Called by extension)
+###############################################################################
+
+### 8.1 Record first win
+POST {{baseUrl}}/wins/record
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "auction": "copart",
+  "lotNumber": "67890123",
+  "vin": "1HGBH41JXMN109186",
+  "finalPrice": 5200
+}
+
+### 8.2 Record second win
+POST {{baseUrl}}/wins/record
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "auction": "copart",
+  "lotNumber": "67890125",
+  "vin": "5NPD84LF4KH654321",
+  "finalPrice": 3400
+}
+
+### 8.3 Try to record duplicate win (should return existing)
+POST {{baseUrl}}/wins/record
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "auction": "copart",
+  "lotNumber": "67890123",
+  "vin": "1HGBH41JXMN109186",
+  "finalPrice": 5200
+}
+
+###############################################################################
+# STEP 9: VIEW WINS
+###############################################################################
+
+### 9.1 Get user's wins (paginated)
+GET {{baseUrl}}/wins/user/{{userId}}?page=1&limit=50
+Authorization: Bearer {{token}}
+
+### 9.2 Get company's all wins (paginated)
+GET {{baseUrl}}/wins/company/{{companyId}}?page=1&limit=50
+Authorization: Bearer {{token}}
+
+###############################################################################
+# STEP 10: BILLING - UNBILLED WINS
+###############################################################################
+
+### 10.1 Get unbilled wins for company (for invoice generation)
+GET {{baseUrl}}/wins/company/{{companyId}}/unbilled
+Authorization: Bearer {{token}}
+
+###############################################################################
+# VALIDATION TESTS
+###############################################################################
+
+### Test 1: Invalid DTO - Missing required field
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "Invalid Company"
+}
+
+### Test 2: Invalid DTO - Password too short
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "companyId": "{{companyId}}",
+  "username": "test",
+  "password": "123",
+  "displayName": "Test User"
+}
+
+### Test 3: Unauthorized request (no token)
+GET {{baseUrl}}/users/company/{{companyId}}
+
+### Test 4: Invalid MongoDB ID format
+GET {{baseUrl}}/users/invalid-id-format
+Authorization: Bearer {{token}}
+
+###############################################################################
+# EDGE CASES
+###############################################################################
+
+### Edge 1: Duplicate company name
+POST {{baseUrl}}/companies
+Content-Type: application/json
+
+{
+  "name": "Test Auto Import LLC",
+  "copartUsername": "another",
+  "copartPassword": "password123"
+}
+
+### Edge 2: Duplicate username
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "companyId": "{{companyId}}",
+  "username": "giorgi",
+  "password": "password123",
+  "displayName": "Another Giorgi"
+}
+
+###############################################################################
+# NOTES FOR TESTING
+###############################################################################
+
+# Testing Flow:
+# 1. Start MongoDB (local or Atlas)
+# 2. Start backend: npm run start:dev
+# 3. Register company (Step 1)
+# 4. Copy companyId from response, replace @companyId variable at top
+# 5. Create users (Step 2) - you may need to skip auth initially
+# 6. Login as user (Step 3)
+# 7. Copy accessToken from response, replace @token variable at top
+# 8. Copy userId from login response, replace @userId variable at top
+# 9. Test all other endpoints
+
+# Expected Results:
+# - Company password encrypted in MongoDB (not readable)
+# - User password hashed with bcrypt (starts with $2b$)
+# - Login returns JWT token
+# - Bids logged with userId from token
+# - Wins logged with $10 fee
+# - Unbilled wins total calculated correctly
+# - Duplicate win returns existing (no duplicate created)
+
+# MongoDB Verification Queries:
+# db.companies.findOne() - Should see encrypted copartPassword
+# db.subusers.findOne() - Should see hashed password ($2b$...)
+# db.bids.find() - Should see all logged bids
+# db.wins.find() - Should see wins with feeCharged: 10, billed: false
