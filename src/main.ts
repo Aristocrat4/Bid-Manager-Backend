@@ -29,6 +29,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:4200',
       'https://bid-manager-frontend.vercel.app',
+      'https://autobidmanager.bid',
     ],
     credentials: true,
   });
