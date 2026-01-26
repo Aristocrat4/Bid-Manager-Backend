@@ -26,7 +26,10 @@ async function bootstrap() {
     .split(',');
 
   app.enableCors({
-    origin: corsOrigins,
+    origin: [
+      'http://localhost:4200',
+      'https://bid-manager-frontend.vercel.app',
+    ],
     credentials: true,
   });
 
