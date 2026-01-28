@@ -26,11 +26,20 @@ async function bootstrap() {
     .split(',');
 
   app.enableCors({
-    origin: [
-      'http://localhost:4200',
-      'https://bid-manager-frontend.vercel.app',
-      'https://autobidmanager.bid',
-    ],
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:4200',
+        'https://bid-manager-frontend.vercel.app',
+        'https://autobidmanager.bid',
+      ];
+
+      // Allow Chrome extensions (they send chrome-extension:// origins)
+      if (!origin || origin.startsWith('chrome-extension://') || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
