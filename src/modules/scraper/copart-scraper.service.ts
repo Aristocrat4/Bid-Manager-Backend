@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import puppeteer, { Browser, Page } from 'puppeteer';
-import * as puppeteerExtra from 'puppeteer-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import { Browser, Page } from 'puppeteer';
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 // Use stealth plugin to avoid bot detection
-puppeteerExtra.use(StealthPlugin());
+puppeteer.use(StealthPlugin());
 
 export interface LotStatus {
   lotNumber: string;

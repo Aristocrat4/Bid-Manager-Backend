@@ -10,7 +10,7 @@ import { EncryptionService } from '../../common/services/encryption.service';
 @Injectable()
 export class ScraperService {
   private readonly logger = new Logger(ScraperService.name);
-  private isRunning = false;
+  public isRunning = false;
   public lastRunTime: Date | null = null;
 
   constructor(
@@ -145,11 +145,12 @@ export class ScraperService {
       bid.errorMessage = undefined;
       await bid.save();
     } catch (error) {
-      this.logger.error(`❌ Error checking bid ${bid._id}:`, error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`❌ Error checking bid ${bid._id}:`, errorMessage);
 
       // Update bid with error
       bid.status = 'pending'; // Reset to pending to retry later
-      bid.errorMessage = error.message;
+      bid.errorMessage = errorMessage;
       await bid.save();
 
       // If too many failures, give up
