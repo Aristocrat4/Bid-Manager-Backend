@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { BidsModule } from './modules/bids/bids.module';
 import { WinsModule } from './modules/wins/wins.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ScraperModule } from './modules/scraper/scraper.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     BidsModule,
     WinsModule,
     DashboardModule,
+    ScraperModule,
   ],
 })
 export class AppModule {}

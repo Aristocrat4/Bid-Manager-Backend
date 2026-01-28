@@ -27,6 +27,13 @@ export class Company extends Document {
   @Prop({ default: true, index: true })
   isActive: boolean;
 
+  // SCRAPER SETTINGS
+  @Prop({ default: true })
+  enableAutoChecking: boolean; // Allow user to disable automatic scraping
+
+  @Prop()
+  copartMemberId?: string; // Copart member ID if available
+
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -1,4 +1,23 @@
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsDateString, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsDateString, IsIn, IsBoolean, IsObject, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+class VehicleInfoDto {
+  @IsString()
+  @IsOptional()
+  year?: string;
+
+  @IsString()
+  @IsOptional()
+  make?: string;
+
+  @IsString()
+  @IsOptional()
+  model?: string;
+
+  @IsString()
+  @IsOptional()
+  vin?: string;
+}
 
 export class LogBidDto {
   @IsString()
@@ -25,4 +44,19 @@ export class LogBidDto {
   @IsDateString()
   @IsOptional()
   auctionDate?: string;
+
+  // NEW FIELDS FOR SCRAPER
+  @IsDateString()
+  @IsOptional()
+  auctionEndTime?: string; // When auction ends
+
+  @IsBoolean()
+  @IsOptional()
+  isPreBid?: boolean; // True if placed before auction starts
+
+  @IsObject()
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => VehicleInfoDto)
+  vehicleInfo?: VehicleInfoDto;
 }
