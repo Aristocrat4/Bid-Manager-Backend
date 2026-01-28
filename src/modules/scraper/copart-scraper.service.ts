@@ -25,7 +25,7 @@ export class CopartScraperService {
     if (!this.browser) {
       this.logger.log('Initializing Puppeteer browser...');
 
-      this.browser = await puppeteerExtra.launch({
+      this.browser = await puppeteer.launch({
         headless: true, // Run without GUI
         args: [
           '--no-sandbox',
@@ -52,6 +52,10 @@ export class CopartScraperService {
   async loginToCopart(username: string, password: string): Promise<Page> {
     await this.initialize();
     await this.checkRateLimit();
+
+    if (!this.browser) {
+      throw new Error('Browser not initialized');
+    }
 
     const page = await this.browser.newPage();
 
@@ -169,7 +173,7 @@ export class CopartScraperService {
         for (const selector of priceSelectors) {
           const element = document.querySelector(selector);
           if (element) {
-            const text = element.textContent || element.innerText;
+            const text = element.textContent || (element as any).innerText;
             const priceMatch = text.match(/\$?([\d,]+)/);
             if (priceMatch) {
               return parseFloat(priceMatch[1].replace(/,/g, ''));
@@ -222,11 +226,11 @@ export class CopartScraperService {
 
         if (!wonSection) {
           // Fallback: search entire page
-          const bodyText = document.body.textContent || document.body.innerText;
+          const bodyText = document.body.textContent || (document.body as any).innerText;
           return bodyText.includes(lot) && bodyText.toLowerCase().includes('won');
         }
 
-        const text = wonSection.textContent || wonSection.innerText;
+        const text = wonSection.textContent || (wonSection as any).innerText;
         return text.includes(lot);
       }, lotNumber);
 
